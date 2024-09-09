@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            color: white;
+        }
+        .container {
+            background-color: #59a8dc;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        .date-and-loc {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .date-and-loc h4 {
+            margin: 5px 0;
+        }
+        
+        .forecast-label h4 {
+            margin: 0px 0;
+            margin-top: 20px;
+        }
+        .weather-today {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .weather-icon {
+            text-align: center;
+            font-size: 90px;
+        }
+        .temp-current {
+            font-size: 60px;
+            font-weight: bold;
+            margin-left: 10px;
+            display: flex;
+            align-items: start;
+            flex-direction: row;
+        }
+        .temp-sec-unit, .temp-unit-slash {
+            opacity: 0.7;
+        }
+        .fake-degree-symbol {
+            opacity: 0;
+            font-size: 1;
+        }
+        .temp-current span {
+            margin-left: 5px;
+            font-size: 24px;
+        }
+        .temp-curr-unit, .temp-sec-unit {
+            display: flex;
+            align-content: start;
+            cursor: pointer;
+        }
+        .temp-curr-unit:hover, .temp-sec-unit:hover {
+            opacity: 1;
+            transition: opacity 0.2s;
+        }
+        .temp-high-low {
+            text-align: center;
+            font-size: 30px;
+        }
+        .temp-high, .temp-low {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+        }
+        .arrow {
+            margin-right: 5px;
+        }
+        .arrow-up {
+            color: red;
+        }
+        .arrow-down {
+            color: blue;
+        }
+        .weather-icon, .temp-high-low {
+            margin-right: 35px;
+        }
+        .weather-details {
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            font-size: 20px;
+            width: 100%;
+        }
+        .weather-details-item {
+            display: flex;
+            justify-content: flex-start;
+            padding: 10px 0;
+            background-color: rgba(248, 248, 248, 0.216);
+            padding: 8px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+        }
+        .weather-details-item > div {
+            margin-left: 5px;
+            flex-grow: 1;
+            text-align: start;
+        }
+        .weather-details-item div:first-child {
+            flex-basis: 150px;
+            text-align: left;
+        }
+        .weather-details-item div:nth-child(2) {
+            flex-basis: 120px;
+            text-align: left;
+        }
+        .weather-details-item:hover {
+            transform: scale(1.02);
+            transition: transform 0.3s ease;
+        }
+
+        .uv-index {
+            display: flex;
+            align-items: center;
+        }
+        .uv-bar {
+            position: absolute;
+            width: 60px;
+            height: 10px;
+            background: linear-gradient(to right, green, yellow, red);
+            margin-left: 30px;
+            margin-right: 15px;
+            border-radius: 5px;
+        }
+        .uv-indicator {
+            position: absolute;
+            left: 1px;
+            top: -5px;
+            width: 5px;
+            height: 20px;
+            background-color: rgb(255, 255, 255);
+            border-radius: 5px;
+        }
+        
+        .hourly-forecast {
+            overflow-x: auto;
+            white-space: nowrap;
+            margin: 8px 0;
+            padding: 10px 0;
+        }
+        .hourly-forecast-item {
+            display: inline-block;
+            text-align: center;
+            margin-right: 5px;
+            background-color: rgba(248, 248, 248, 0.216);
+            padding: 8px;
+            border-radius: 10px;
+            min-width: 55px;
+        }
+        .hourly-forecast-item:hover {
+            transform: scale(1.08);
+            transition: transform 0.3s ease;
+        }
+
+        .daily-forecast {
+            display: flex;
+            flex-direction: column;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin: 8px 0;
+            padding: 10px 0;
+        }
+        .daily-forecast-item {
+            display: flex;
+            text-align: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-top: 1px solid #ffffff72;
+        }
+        .temp-slash {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .daily-forecast-item > div {
+            margin-left: 5px;
+            flex-basis: 90px;
+            text-align: start;
+        }
+        .daily-forecast-item:hover {
+            transform: scale(1.01);
+            transition: transform 0.2s ease;
+        }
+        
+        .extra-details {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+        }
+        .extra-details-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background-color: rgba(248, 248, 248, 0.216);
+            border-radius: 10px;
+            margin-right: 8px;
+            width: 90%;
+        }
+        .humidity, .air-quality {
+            flex: 1;
+            text-align: center;
+        }
+        .aq-bar {
+            width: 10px;
+            height: 50px;
+            background: linear-gradient(to bottom, green, yellow, red);
+            margin: 10px auto;
+            position: relative;
+            border-radius: 5px;
+        }
+        .aq-indicator {
+            position: absolute;
+            left: -5px;
+            top: 5px;
+            width: 20px;
+            height: 5px;
+            background-color: rgb(255, 255, 255);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="date-and-loc">
+            <h4>SUNDAY, SEP 8</h4>
+            <h4>PHILADELPHIA</h4>
+        </div>
+        <div class="weather-today">
+            <div class="weather-icon">
+                ☀️
+                <div class="temp-current">
+                    72
+                    <span class="temp-curr-unit" onclick="toggleUnit()">°F</span>
+                    <span class="temp-unit-slash">/</span> 
+                    <span class="temp-sec-unit"onclick="toggleUnit()">°C</span> 
+                </div>
+            </div>
+            <div class="temp-high-low">
+                <div class="temp-high"><span class="arrow arrow-up">▲</span> 75°</div>
+                <div class="temp-low"><span class="arrow arrow-down">▼</span> 65°</div>
+            </div>
+            <div class="weather-details">
+                <div class="weather-details-item">
+                    <div>Feels like</div>
+                    <div>60°</div>
+                </div>
+                <div class="weather-details-item">
+                    <div><i class="fas fa-wind"></i></div>
+                    <div>8 mph</div>
+                </div>
+                <div class="weather-details-item">
+                    <div><i class="fas fa-tint"></i></div>
+                    <div>0%</div>
+                </div>
+                <div class="weather-details-item">
+                    <div>UV Index</div>
+                    <div class="uv-index">
+                        0
+                        <div class="uv-bar">
+                            <div class="uv-indicator"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="forecast-label">
+            <h4>Hourly Forecast</h4>
+        </div>
+        <div class="hourly-forecast">
+            <div class="hourly-forecast-item">
+                <div>Now</div>
+                <div>☀️</div>
+                <div>72°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>8AM</div>
+                <div>☀️</div>
+                <div>73°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>9AM</div>
+                <div>☀️</div>
+                <div>73°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>10AM</div>
+                <div>☀️</div>
+                <div>73°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>11AM</div>
+                <div>☀️</div>
+                <div>74°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>12PM</div>
+                <div>☀️</div>
+                <div>75°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>1PM</div>
+                <div>☀️</div>
+                <div>75°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>2PM</div>
+                <div>☀️</div>
+                <div>74°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>3PM</div>
+                <div>☀️</div>
+                <div>74°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>4PM</div>
+                <div>☀️</div>
+                <div>74°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>5PM</div>
+                <div>☀️</div>
+                <div>70°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>6PM</div>
+                <div>☀️</div>
+                <div>68°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>7PM</div>
+                <div>☀️</div>
+                <div>67°</div>
+            </div>
+            <div class="hourly-forecast-item">
+                <div>8PM</div>
+                <div>☀️</div>
+                <div>65°</div>
+            </div>
+        </div>
+        
+        <div class="forecast-label">
+            <h4>Weekly Forecast</h4>
+        </div>
+        <div class="daily-forecast">
+            <div class="daily-forecast-item">
+                <div>Today</div>
+                <div>☀️</div>
+                <div>
+                    <span class="arrow arrow-up">▲</span>75°
+                    <span class="temp-slash">/</span> 
+                    <span class="arrow arrow-down">▼</span>65°
+                </div>
+                <div><i class="fas fa-tint"></i> 0% </div>
+            </div>
+            <div class="daily-forecast-item">
+                <div>Tue</div>
+                <div>🌤️</div>
+                <div>
+                    <span class="arrow arrow-up">▲</span>76°
+                    <span class="temp-slash">/</span>
+                    <span class="arrow arrow-down">▼</span>66°
+                </div>
+                <div><i class="fas fa-tint"></i> 10% </div>
+            </div>
+            <div class="daily-forecast-item">
+                <div>Wed</div>
+                <div>⛅</div>
+                <div>
+                    <span class="arrow arrow-up">▲</span>74°
+                    <span class="temp-slash">/</span>
+                    <span class="arrow arrow-down">▼</span>64°
+                </div>
+                <div><i class="fas fa-tint"></i> 20% </div>
+            </div>
+            <div class="daily-forecast-item"> 
+                <div>Fri</div>
+                <div>⛅</div>
+                <div>
+                    <span class="arrow arrow-up">▲</span>77°
+                    <span class="temp-slash">/</span>
+                    <span class="arrow arrow-down">▼</span>68°
+                </div>
+                <div><i class="fas fa-tint"></i> 15% </div>
+            </div>
+            <div class="daily-forecast-item">
+                <div>Sat</div>
+                <div>🌤️</div>
+                <div>
+                    <span class="arrow arrow-up">▲</span>71°
+                    <span class="temp-slash">/</span>
+                    <span class="arrow arrow-down">▼</span>59°
+                </div>
+                <div><i class="fas fa-tint"></i> 5% </div>
+            </div>
+            <div class="daily-forecast-item">
+                <div>Sun</div>
+                <div>⛅</div>
+                <div>
+                    <span class="arrow arrow-up">▲</span>79°
+                    <span class="temp-slash">/</span>
+                    <span class="arrow arrow-down">▼</span>62°
+                </div>
+                <div><i class="fas fa-tint"></i> 5% </div>
+            </div>
+            <div class="daily-forecast-item">
+                <div>Mon</div>
+                <div>☀️</div>
+                <div>
+                    <span class="arrow arrow-up">▲</span>84°
+                    <span class="temp-slash">/</span>
+                    <span class="arrow arrow-down">▼</span>73°
+                </div>
+                <div><i class="fas fa-tint"></i> 0% </div>
+            </div>
+        </div>
+        
+        <div class="extra-details">
+            <div class="extra-details-item">
+                <h4>Humidity</h4>
+                <div>83%</div>
+            </div>
+            <div class="extra-details-item">
+                <h4>Air Quality</h4>
+                <div>24 - Good</div>
+                <div class="aq-bar">
+                    <div class="aq-indicator"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isFahrenheit = true;
+
+        function toggleUnit() {
+            isFahrenheit = !isFahrenheit;
+            updateTemperatures();
+            updateDisplayedUnit();
+        }
+
+        function updateTemperatures() {
+            const temperatureElements = document.querySelectorAll('*');
+            
+            temperatureElements.forEach(element => {
+                element.childNodes.forEach(node => {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        const text = node.textContent;
+                        const regex = /(-?\d+(?:\.\d+)?)°/g;
+                        const newText = text.replace(regex, (match, temp) => {
+                            const convertedTemp = isFahrenheit 
+                                ? celsiusToFahrenheit(parseFloat(temp)) 
+                                : fahrenheitToCelsius(parseFloat(temp));
+                            return `${Math.round(convertedTemp)}°`;
+                        });
+                        if (text !== newText) {
+                            node.textContent = newText;
+                        }
+                    }
+                });
+            });
+            const currTemp = document.querySelectorAll('.temp-current')
+            currTemp.forEach(element => {
+                element.childNodes.forEach(node => {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        const text = node.textContent;
+                        const regex = /(-?\d+(?:\.\d+)?)/g;
+                        const newText = text.replace(regex, (match, temp) => {
+                            const convertedTemp = isFahrenheit 
+                                ? celsiusToFahrenheit(parseFloat(temp)) 
+                                : fahrenheitToCelsius(parseFloat(temp));
+                            return `${Math.round(convertedTemp)}`;
+                        });
+                        if (text !== newText) {
+                            node.textContent = newText;
+                        }
+                    }
+                });
+            });
+
+        }
+
+        function updateDisplayedUnit() {
+            const currentUnitElement = document.querySelector('.temp-curr-unit');
+            const secondaryUnitElement = document.querySelector('.temp-sec-unit');
+            
+            if (isFahrenheit) {
+                currentUnitElement.textContent = '°F';
+                secondaryUnitElement.textContent = '°C';
+            } else {
+                currentUnitElement.textContent = '°C';
+                secondaryUnitElement.textContent = '°F';
+            }
+        }
+
+        function celsiusToFahrenheit(celsius) {
+            return (celsius * 9/5) + 32;
+        }
+
+        function fahrenheitToCelsius(fahrenheit) {
+            return (fahrenheit - 32) * 5/9;
+        }
+    </script>
+</body>
+</html>
